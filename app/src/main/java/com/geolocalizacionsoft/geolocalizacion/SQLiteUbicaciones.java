@@ -6,14 +6,13 @@ import android.database.sqlite.SQLiteDatabase;
 import android.media.Image;
 import android.provider.BaseColumns;
 
-import java.util.jar.Attributes;
 
 
-public class SQLite {
+public class SQLiteUbicaciones {
     private static final String NAME = "ubicaciones";
     private SQLiteDatabase SqlDb;
 
-    public SQLite (SQLiteDatabase SqlDb) {
+    public SQLiteUbicaciones(SQLiteDatabase SqlDb) {
         this.SqlDb=SqlDb;
     }
 

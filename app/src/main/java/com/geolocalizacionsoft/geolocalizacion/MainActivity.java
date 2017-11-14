@@ -2,13 +2,10 @@ package com.geolocalizacionsoft.geolocalizacion;
 
 import android.Manifest;
 import android.app.AlertDialog;
-import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.content.pm.PackageManager;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
@@ -42,7 +39,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 public class MainActivity extends FragmentActivity implements
-        GoogleApiClient.OnConnectionFailedListener, GoogleApiClient.ConnectionCallbacks, LocationListener,GoogleMap.OnMapLongClickListener {
+        GoogleApiClient.OnConnectionFailedListener, GoogleApiClient.ConnectionCallbacks, LocationListener{
 
     private static final int PETICION_PERMISO_LOCALIZACION = 0;
     private static final int PETICION_CONFIG_UBICACION = 0;
@@ -51,12 +48,14 @@ public class MainActivity extends FragmentActivity implements
     private GoogleMap googleMap;
     private AlertDialog alertGPS = null;
     private LocationManager locationManager;
-    SQLite preferencia;
+    SQLiteUbicaciones preferencia;
     //-------------------------------------------------------------------------------------------------
 
     private Ubicacion ubicacion;
     Location Localizacion;
     private LatLng LocalizacionCoord;
+    private BaseApplication baseApplication;
+
 
     //-------------------------------------------------------------------------------------------------
     @Override
@@ -65,6 +64,7 @@ public class MainActivity extends FragmentActivity implements
         setContentView(R.layout.activity_main);
 
         ubicacion = new Ubicacion();
+        baseApplication = new BaseApplication();
         this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
         ConectarAPI();
@@ -120,12 +120,6 @@ public class MainActivity extends FragmentActivity implements
         ActualizarCamara(LocalizacionCoord);
     }
 
-    @Override
-    public void onMapLongClick(LatLng latLng) {
-        Intent intent = new Intent(this, preferencia.getClass());
-        startActivity(intent);
-    }
-
 //-------------------------------------------------------------------------------------------------------------
     private void ConectarAPI() {
         apiClient = new GoogleApiClient
@@ -152,7 +146,7 @@ public class MainActivity extends FragmentActivity implements
     private void enableLocationUpdates() {
 
         locationRequest = new LocationRequest();
-        locationRequest.setInterval(5000);
+        locationRequest.setInterval(10000);
         //locRequest.setFastestInterval(1000);
         locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
 
@@ -214,7 +208,8 @@ public class MainActivity extends FragmentActivity implements
     }
 //--------------------------------------------------------------------------------------------------------------
 
-    private class Mapa implements OnMapReadyCallback{
+    int indice=0;
+    private class Mapa implements OnMapReadyCallback {
         @Override
         public void onMapReady(GoogleMap mapa){
             googleMap=mapa;
@@ -222,21 +217,38 @@ public class MainActivity extends FragmentActivity implements
             googleMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
                 @Override
                 public void onMapClick(LatLng latLng) {
-                    ubicacion.setTitulo("");
-                    ubicacion.setDescripcion("");
-                    ubicacion.setPosicion(String.valueOf(latLng.latitude)+String.valueOf(latLng.longitude));
-                    Guardar(ubicacion);
+                    indice++;
+                    ubicacion.setTitulo("Ubicacion "+indice);
+                    ubicacion.setDescripcion("Insertar descripcion...!");
+                    ubicacion.setPosicion(String.valueOf(latLng.latitude)+","+String.valueOf(latLng.longitude));
+                   // Guardar(ubicacion);
+                }
+            });
+            googleMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
+                @Override
+                public void onMapLongClick(LatLng latLng) {
+                    googleMap.addMarker(new MarkerOptions()
+                            .position(latLng)
+                            .title(ubicacion.getTitulo())
+                            .snippet(ubicacion.getDescripcion())
+                            .icon(BitmapDescriptorFactory.fromResource(R.drawable.points_mark_maps)));
+
                 }
             });
         }
+
+
+
+
     }
 
     private void Guardar(Ubicacion ubicacion) {
-
+        (baseApplication).InsertarUbicacion(ubicacion);
     }
 
 
     private void Leer() {
+
     }
 }
 
