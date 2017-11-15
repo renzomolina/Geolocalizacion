@@ -1,9 +1,11 @@
-package com.geolocalizacionsoft.geolocalizacion;
+package com.geolocalizacionsoft.geolocalizacion.Base_de_Datos;
 
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+
+import com.geolocalizacionsoft.geolocalizacion.MisClases.Ubicacion;
 
 
 public class DBAdapter {

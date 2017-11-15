@@ -1,4 +1,4 @@
-package com.geolocalizacionsoft.geolocalizacion;
+package com.geolocalizacionsoft.geolocalizacion.MisClases;
 
 public class Ubicacion {
     private String titulo;

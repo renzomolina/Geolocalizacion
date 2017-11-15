@@ -1,7 +1,9 @@
-package com.geolocalizacionsoft.geolocalizacion;
+package com.geolocalizacionsoft.geolocalizacion.Base_de_Datos;
 
 import android.app.Application;
 import android.database.Cursor;
+
+import com.geolocalizacionsoft.geolocalizacion.MisClases.Ubicacion;
 
 import java.util.ArrayList;
 

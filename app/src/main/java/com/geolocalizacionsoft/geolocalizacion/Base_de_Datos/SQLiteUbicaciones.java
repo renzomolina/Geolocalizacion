@@ -1,11 +1,11 @@
-package com.geolocalizacionsoft.geolocalizacion;
+package com.geolocalizacionsoft.geolocalizacion.Base_de_Datos;
 
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.media.Image;
 import android.provider.BaseColumns;
 
+import com.geolocalizacionsoft.geolocalizacion.MisClases.Ubicacion;
 
 
 public class SQLiteUbicaciones {

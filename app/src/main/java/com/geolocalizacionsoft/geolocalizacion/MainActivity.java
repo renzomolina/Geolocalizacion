@@ -17,6 +17,9 @@ import android.support.v4.app.FragmentActivity;
 import android.view.WindowManager;
 import android.widget.Toast;
 
+import com.geolocalizacionsoft.geolocalizacion.Base_de_Datos.BaseApplication;
+import com.geolocalizacionsoft.geolocalizacion.Base_de_Datos.SQLiteUbicaciones;
+import com.geolocalizacionsoft.geolocalizacion.MisClases.Ubicacion;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.PendingResult;
@@ -64,7 +67,6 @@ public class MainActivity extends FragmentActivity implements
         setContentView(R.layout.activity_main);
 
         ubicacion = new Ubicacion();
-        baseApplication = new BaseApplication();
         this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
         ConectarAPI();
@@ -83,7 +85,7 @@ public class MainActivity extends FragmentActivity implements
             try {
                 Localizacion = LocationServices.FusedLocationApi.getLastLocation(apiClient);
                 LocalizacionCoord = new LatLng(Localizacion.getLatitude(), Localizacion.getLongitude());
-                ActualizarCamara(LocalizacionCoord);
+               ActualizarCamara(LocalizacionCoord);
             } catch (Exception ex) {
             }
             googleMap.setMyLocationEnabled(true);
@@ -116,8 +118,8 @@ public class MainActivity extends FragmentActivity implements
 
     @Override
     public void onLocationChanged(Location location) {
-        LocalizacionCoord = new LatLng(location.getLatitude(), location.getLongitude());
-        ActualizarCamara(LocalizacionCoord);
+        /*LocalizacionCoord = new LatLng(location.getLatitude(), location.getLongitude());
+        ActualizarCamara(LocalizacionCoord);*/
     }
 
 //-------------------------------------------------------------------------------------------------------------
@@ -135,7 +137,7 @@ public class MainActivity extends FragmentActivity implements
         CameraPosition CamPos = new CameraPosition
                 .Builder()
                 .target(COORDS)
-                .zoom(19)
+                .zoom(16)
                 .bearing(-10)
                 .tilt(0)
                 .build();
@@ -217,22 +219,21 @@ public class MainActivity extends FragmentActivity implements
             googleMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
                 @Override
                 public void onMapClick(LatLng latLng) {
-                    indice++;
-                    ubicacion.setTitulo("Ubicacion "+indice);
-                    ubicacion.setDescripcion("Insertar descripcion...!");
-                    ubicacion.setPosicion(String.valueOf(latLng.latitude)+","+String.valueOf(latLng.longitude));
-                   // Guardar(ubicacion);
                 }
             });
             googleMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
                 @Override
                 public void onMapLongClick(LatLng latLng) {
+                    indice++;
+                    ubicacion.setTitulo("Ubicacion "+indice);
+                    ubicacion.setDescripcion("Insertar descripcion...!");
+                    ubicacion.setPosicion(String.valueOf(latLng.latitude)+","+String.valueOf(latLng.longitude));
                     googleMap.addMarker(new MarkerOptions()
                             .position(latLng)
                             .title(ubicacion.getTitulo())
                             .snippet(ubicacion.getDescripcion())
                             .icon(BitmapDescriptorFactory.fromResource(R.drawable.points_mark_maps)));
-
+                    //Guardar(ubicacion);
                 }
             });
         }
@@ -243,6 +244,7 @@ public class MainActivity extends FragmentActivity implements
     }
 
     private void Guardar(Ubicacion ubicacion) {
+        baseApplication = new BaseApplication();
         (baseApplication).InsertarUbicacion(ubicacion);
     }
 
