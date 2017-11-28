@@ -14,11 +14,14 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
+import android.support.v7.app.ActionBar;
 import android.view.WindowManager;
 import android.widget.Toast;
 
-import com.geolocalizacionsoft.geolocalizacion.Base_de_Datos.BaseApplication;
-import com.geolocalizacionsoft.geolocalizacion.Base_de_Datos.SQLiteUbicaciones;
+
+
+import com.geolocalizacionsoft.geolocalizacion.BaseDeDatos.BaseApplication;
+import com.geolocalizacionsoft.geolocalizacion.BaseDeDatos.SQLiteUbicaciones;
 import com.geolocalizacionsoft.geolocalizacion.MisClases.Ubicacion;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -42,7 +45,8 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 public class MainActivity extends FragmentActivity implements
-        GoogleApiClient.OnConnectionFailedListener, GoogleApiClient.ConnectionCallbacks, LocationListener{
+        GoogleApiClient.OnConnectionFailedListener, GoogleApiClient.ConnectionCallbacks,
+        LocationListener{
 
     private static final int PETICION_PERMISO_LOCALIZACION = 0;
     private static final int PETICION_CONFIG_UBICACION = 0;
@@ -51,13 +55,12 @@ public class MainActivity extends FragmentActivity implements
     private GoogleMap googleMap;
     private AlertDialog alertGPS = null;
     private LocationManager locationManager;
-    SQLiteUbicaciones preferencia;
+    private SQLiteUbicaciones preferencia;
     //-------------------------------------------------------------------------------------------------
 
     private Ubicacion ubicacion;
-    Location Localizacion;
+    private Location Localizacion;
     private LatLng LocalizacionCoord;
-    private BaseApplication baseApplication;
 
 
     //-------------------------------------------------------------------------------------------------
@@ -68,15 +71,15 @@ public class MainActivity extends FragmentActivity implements
 
         ubicacion = new Ubicacion();
         this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
-
         ConectarAPI();
-
         locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
         if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
             GpsDesactivado();
         }
     }
+//---------------------------------------- MENU LATERAL --------------------------------------------
 
+//------------------------------------------------------------------------------------------------------
     @Override
     public void onConnected(@Nullable Bundle bundle) {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -118,8 +121,8 @@ public class MainActivity extends FragmentActivity implements
 
     @Override
     public void onLocationChanged(Location location) {
-        /*LocalizacionCoord = new LatLng(location.getLatitude(), location.getLongitude());
-        ActualizarCamara(LocalizacionCoord);*/
+        LocalizacionCoord = new LatLng(location.getLatitude(), location.getLongitude());
+        ActualizarCamara(LocalizacionCoord);
     }
 
 //-------------------------------------------------------------------------------------------------------------
@@ -146,9 +149,8 @@ public class MainActivity extends FragmentActivity implements
     }
 
     private void enableLocationUpdates() {
-
         locationRequest = new LocationRequest();
-        locationRequest.setInterval(10000);
+        locationRequest.setInterval(30000);
         //locRequest.setFastestInterval(1000);
         locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
 
@@ -211,6 +213,7 @@ public class MainActivity extends FragmentActivity implements
 //--------------------------------------------------------------------------------------------------------------
 
     int indice=0;
+
     private class Mapa implements OnMapReadyCallback {
         @Override
         public void onMapReady(GoogleMap mapa){
@@ -237,18 +240,14 @@ public class MainActivity extends FragmentActivity implements
                 }
             });
         }
-
-
-
-
     }
+
+
 
     private void Guardar(Ubicacion ubicacion) {
-        baseApplication = new BaseApplication();
+        BaseApplication baseApplication = new BaseApplication();
         (baseApplication).InsertarUbicacion(ubicacion);
     }
-
-
     private void Leer() {
 
     }

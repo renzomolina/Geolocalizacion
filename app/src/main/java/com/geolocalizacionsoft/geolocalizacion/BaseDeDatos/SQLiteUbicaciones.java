@@ -1,4 +1,4 @@
-package com.geolocalizacionsoft.geolocalizacion.Base_de_Datos;
+package com.geolocalizacionsoft.geolocalizacion.BaseDeDatos;
 
 import android.content.ContentValues;
 import android.database.Cursor;
@@ -28,8 +28,8 @@ public class SQLiteUbicaciones {
     private final static  String[] COLUMNS = {Columns.ID,Columns.TITULO,Columns.DESCRIPCION,Columns.POSICION};
 
 
-    public final static String TABLE = "CREATETABLEIFNOTEXISTS"+ NAME + "(" + Columns.ID + "INTEGERPRIMARYKEYAUTOINCREMENT, " + Columns.TITULO +
-            " TEXTNOTNULL, " + Columns.DESCRIPCION + " TEXTNOTNULL, " + Columns.POSICION + " TEXTNOTNULL)";
+    public final static String TABLE = "CREATE TABLE IF NOT EXISTS "+ NAME + "(" + Columns.ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " + Columns.TITULO +
+            " TEXT NOT NULL, " + Columns.DESCRIPCION + " TEXT NOT NULL, " + Columns.POSICION + " TEXT NOT NULL)";
 
 
     public boolean Insert(Ubicacion ubicacion){

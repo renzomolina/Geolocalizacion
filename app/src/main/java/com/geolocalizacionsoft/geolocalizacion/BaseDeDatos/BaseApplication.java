@@ -1,4 +1,4 @@
-package com.geolocalizacionsoft.geolocalizacion.Base_de_Datos;
+package com.geolocalizacionsoft.geolocalizacion.BaseDeDatos;
 
 import android.app.Application;
 import android.database.Cursor;
