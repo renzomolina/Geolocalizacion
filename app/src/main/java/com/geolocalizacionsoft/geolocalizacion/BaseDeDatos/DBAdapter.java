@@ -61,7 +61,7 @@ public class DBAdapter {
 
         @Override
         public void onUpgrade(SQLiteDatabase sqLiteDatabase, int i, int i1) {
-            sqLiteDatabase.execSQL(String.format("droptableifexists %s", SQLiteUbicaciones.TABLE));
+            sqLiteDatabase.execSQL(String.format("drop table if exists %s", SQLiteUbicaciones.TABLE));
         }
     }
 }

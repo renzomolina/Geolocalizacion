@@ -39,4 +39,7 @@ public class BaseApplication extends Application{
         }
         return list;
     }
+    public Cursor DatosUbicacion(){
+        return dbAdapter.getDatosUbicacion();
+    }
 }
