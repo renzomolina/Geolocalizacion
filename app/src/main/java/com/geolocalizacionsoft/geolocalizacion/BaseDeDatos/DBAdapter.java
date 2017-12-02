@@ -47,6 +47,9 @@ public class DBAdapter {
         return ubicaciones.getDatos();
     }
 
+    public Cursor getPosiciones(){
+        return ubicaciones.getPosiciones();
+    }
 
     private class DBHelper extends SQLiteOpenHelper{
 

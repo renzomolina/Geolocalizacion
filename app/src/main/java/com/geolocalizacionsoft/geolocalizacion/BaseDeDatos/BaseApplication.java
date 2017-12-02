@@ -42,4 +42,7 @@ public class BaseApplication extends Application{
     public Cursor DatosUbicacion(){
         return dbAdapter.getDatosUbicacion();
     }
+    public Cursor DatosPosiciones(){
+        return dbAdapter.getPosiciones();
+    }
 }

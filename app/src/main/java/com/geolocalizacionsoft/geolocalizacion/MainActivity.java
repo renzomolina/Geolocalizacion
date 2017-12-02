@@ -1,7 +1,10 @@
 package com.geolocalizacionsoft.geolocalizacion;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
+import android.app.Dialog;
+import android.app.DialogFragment;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentSender;
@@ -9,33 +12,37 @@ import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.RequiresApi;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.app.AppCompatCallback;
 import android.util.Log;
-import android.view.Menu;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
+import android.view.View;
 import android.view.WindowManager;
+import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Toast;
 
 
-
 import com.geolocalizacionsoft.geolocalizacion.BaseDeDatos.BaseApplication;
-import com.geolocalizacionsoft.geolocalizacion.BaseDeDatos.SQLiteUbicaciones;
-import com.geolocalizacionsoft.geolocalizacion.MisClases.DialogUbicacion;
+import com.geolocalizacionsoft.geolocalizacion.MisClases.Foto;
+import com.geolocalizacionsoft.geolocalizacion.MisClases.Lugares;
 import com.geolocalizacionsoft.geolocalizacion.MisClases.Ubicacion;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -55,9 +62,14 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
+import com.google.android.gms.maps.model.Circle;
+import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.MarkerOptions;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 
 
 public class MainActivity extends AppCompatActivity implements
@@ -69,20 +81,21 @@ public class MainActivity extends AppCompatActivity implements
     private static final int PETICION_PERMISO_LOCALIZACION = 0;
     private static final int PETICION_CONFIG_UBICACION = 0;
     private static final String TAG = MainActivity.class.getSimpleName();
-    private GoogleApiClient apiClient;
-    private LocationRequest locationRequest;
+    private GoogleApiClient apiClient = null;
+    private LocationRequest locationRequest = null;
     private GoogleMap googleMap;
     private AlertDialog alertGPS = null;
     private LocationManager locationManager;
-    private SQLiteUbicaciones preferencia;
     private Cursor cursor;
-    //-------------------------------------------------------------------------------------------------
-
+    //-----------------------------------------------------------------------------------------------------
     private Ubicacion ubicacion;
     private Location Localizacion;
-    private LatLng LocalizacionCoord;
-
-    //-------------------------------------------------------------------------------------------------
+    private LatLng LocalizacionCoord, latitudLongitud;
+    //-----------------------------------------------------------------------------------------------------
+    private EditText nombre, descripcion;
+    private ImageButton btnCamera;
+    private ImageView foto;
+    //-----------------------------------------------------------------------------------------------------
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -103,9 +116,9 @@ public class MainActivity extends AppCompatActivity implements
         if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
             GpsDesactivado();
         }
-
     }
-//---------------------------------------- MENU LATERAL ---------------------------------------------------
+
+    //---------------------------------------- MENU LATERAL ---------------------------------------------------
     @Override
     public void onBackPressed() {
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
@@ -121,7 +134,9 @@ public class MainActivity extends AppCompatActivity implements
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         int id = item.getItemId();
 
-        if (id == R.id.nav_camera) {
+        if (id == R.id.nav_lugares) {
+            Intent intent = new Intent(this, Lugares.class);
+            startActivity(intent);
 
         } else if (id == R.id.nav_gallery) {
 
@@ -138,35 +153,13 @@ public class MainActivity extends AppCompatActivity implements
         return true;
     }
 
-
     //------------------------------------------------------------------------------------------------------
     @Override
     public void onConnected(@Nullable Bundle bundle) {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, PETICION_PERMISO_LOCALIZACION);
-        } else {
-            try {
-                Localizacion = LocationServices.FusedLocationApi.getLastLocation(apiClient);
-                LocalizacionCoord = new LatLng(Localizacion.getLatitude(), Localizacion.getLongitude());
-                ActualizarCamara(LocalizacionCoord);
-            } catch (Exception ex) {
-            }
-            googleMap.setMyLocationEnabled(true);
-            enableLocationUpdates();
         }
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-        if (requestCode == PETICION_PERMISO_LOCALIZACION) {
-            if (grantResults.length == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                //Permiso concedido
-                Toast.makeText(this, "Permisos de ubicacion aceptado", Toast.LENGTH_SHORT).show();
-            } else {
-                //Permiso denegado:
-                Toast.makeText(this, "Permimos de ubicacion ignorados", Toast.LENGTH_SHORT).show();
-            }
-        }
+        else {MyLocation();}
     }
 
     @Override
@@ -185,7 +178,20 @@ public class MainActivity extends AppCompatActivity implements
         ActualizarCamara(LocalizacionCoord);
     }
 
-//--------------------------------------------------------------------------------------------------------
+    //------------------------------SOLICITUD DE PERMISOS-------------------------------------------------
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        if (requestCode == PETICION_PERMISO_LOCALIZACION) {
+            if (permissions.length == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                MyLocation();
+                Toast.makeText(this, "Permisos de ubicacion aceptado", Toast.LENGTH_SHORT).show();
+            }
+            else {
+                Toast.makeText(this, "Permimos de ubicacion ignorados", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+    //------------------------------------------------------------------------------------------------------
     private void ConectarAPI() {
         apiClient = new GoogleApiClient
                 .Builder(this)
@@ -210,7 +216,7 @@ public class MainActivity extends AppCompatActivity implements
 
     private void enableLocationUpdates() {
         locationRequest = new LocationRequest();
-        locationRequest.setInterval(30000);
+        locationRequest.setInterval(20000);
         //locRequest.setFastestInterval(1000);
         locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
 
@@ -283,12 +289,80 @@ public class MainActivity extends AppCompatActivity implements
         } catch (Resources.NotFoundException e) {
             Log.e(TAG, "Can't find style. Error: ", e);
         }
+        cursor=Leer();
+        if(cursor!=null){
+            if(cursor.moveToFirst()) {
+                do {
+                    latitudLongitud = new LatLng(Double.valueOf(cursor.getString(3)),Double.valueOf(cursor.getString(4)));
+                    ByteArrayInputStream imageStream = new ByteArrayInputStream(cursor.getBlob(5));
+                    Bitmap theImage= BitmapFactory.decodeStream(imageStream);
+                    googleMap.addMarker(new MarkerOptions()
+                            .position(latitudLongitud)
+                            .title(cursor.getString(1))
+                            .snippet(cursor.getString(2))
+                            .icon(BitmapDescriptorFactory.fromBitmap(theImage)));
+
+                    Foto foto = new Foto();
+                    foto.setName(cursor.getString(1));
+                    foto.setDescription(cursor.getString(2));
+                    foto.setImage(theImage);
+
+                    CrearRadio(googleMap,latitudLongitud);
+                }while (cursor.moveToNext());
+            }
+        }
+
 
     }
 
-    //--------------------------------------------------------------------------------------------------------------
+    //-------------------------------GUARDAR Y LEER BASE DE DATOS-----------------------------------------------------------------
+    public void Guardar(Ubicacion ubicacion) {
+        ((BaseApplication)getApplication()).InsertarUbicacion(ubicacion);
+    }
+
+    public Cursor Leer() {
+        return (((BaseApplication)getApplication()).DatosUbicacion());
+    }
+
+    //-----------------------------METODO PARA MAPA LOCATION Y RADIO--------------------------------------------------------------
+    public void MyLocation() {
+        try {
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                // TODO: Consider calling
+                //    ActivityCompat#requestPermissions
+                // here to request the missing permissions, and then overriding
+                //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                //                                          int[] grantResults)
+                // to handle the case where the user grants the permission. See the documentation
+                // for ActivityCompat#requestPermissions for more details.
+                return;
+            }
+            Localizacion = LocationServices.FusedLocationApi.getLastLocation(apiClient);
+            LocalizacionCoord = new LatLng(Localizacion.getLatitude(), Localizacion.getLongitude());
+            ActualizarCamara(LocalizacionCoord);
+        } catch (Exception ex) {
+        }
+        googleMap.setMyLocationEnabled(true);
+        enableLocationUpdates();
+    }
+
+    private void CrearRadio(GoogleMap map,LatLng latitudLongitud){
+        map.addCircle(new CircleOptions()
+                .center(new LatLng(latitudLongitud.latitude, latitudLongitud.longitude))
+                .radius(100)
+                .strokeColor(Color.RED)
+                .fillColor(Color.TRANSPARENT));
+    }
+
+    //---------------------------------LLAMAR A CLASE INTERNA DIALOG------------------------------------------------------------------------------
+    private void InstanciarDialogo(Ubicacion ubicacion) {
+        DialogUbicacion dialog = new DialogUbicacion(); //Instanciamos la clase con el dialogo
+        dialog.setCancelable(false);
+        dialog.show(getFragmentManager(), "NEWPOSITION");// Mostramos el dialogo
+    }
+
+    //-----------------------------------CLASE INTERNA MAPA---------------------------------------------------------------------------
     private class Mapa implements OnMapReadyCallback {
-        int indice=0;
         @Override
         public void onMapReady(GoogleMap mapa) {
             googleMap = mapa;
@@ -296,42 +370,118 @@ public class MainActivity extends AppCompatActivity implements
             googleMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
                 @Override
                 public void onMapClick(LatLng latLng) {
-                    googleMap.clear();
+                    //googleMap.clear();
                 }
             });
             googleMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
+                @RequiresApi(api = Build.VERSION_CODES.O)
                 @Override
                 public void onMapLongClick(LatLng latLng) {
-                    indice++;
-                    ubicacion.setTitulo("Ubicacion " + indice);
-                    ubicacion.setDescripcion("Insertar descripcion...!");
-                    ubicacion.setPosicion(String.valueOf(latLng.latitude) + "," + String.valueOf(latLng.longitude));
-                    googleMap.addMarker(new MarkerOptions()
-                            .position(latLng)
-                            .title(ubicacion.getTitulo())
-                            .snippet(ubicacion.getDescripcion())
-                            .icon(BitmapDescriptorFactory.fromResource(R.drawable.points_mark_maps)));
-                   // Guardar(ubicacion);
-                   dialogoUbicacion();
+                    ubicacion.setLatitud(String.valueOf(latLng.latitude));
+                    ubicacion.setLongitud(String.valueOf(latLng.longitude));
+                    InstanciarDialogo(ubicacion);
                 }
             });
         }
     }
+    //-------------------------------CLASE INTERNA DIALOG UBICACION----------------------------------------------------------------
+    @SuppressLint("ValidFragment")
+    public class DialogUbicacion extends DialogFragment implements View.OnClickListener {
+
+        private static final int REQUEST_IMAGE_CAPTURE = 1;
 
 
-    private void Guardar(Ubicacion ubicacion) {
-        ((BaseApplication)getApplication()).InsertarUbicacion(ubicacion);
-    }
+        @RequiresApi(api = Build.VERSION_CODES.O)
+        @Override
+        public Dialog onCreateDialog(Bundle savedInstanceState) {
+            LayoutInflater inflater = getActivity().getLayoutInflater();
+            View content = inflater.inflate(R.layout.ubicacion_dialog, null);
 
-    private void Leer() {
-        cursor = ((BaseApplication)getApplication()).DatosUbicacion();
-    }
+            btnCamera = content.findViewById(R.id.btCamera);
+            nombre = content.findViewById(R.id.input_nombre);
+            descripcion = content.findViewById(R.id.input_descripcion);
+            foto = content.findViewById(R.id.foto);
+            btnCamera.setOnClickListener(this);
 
-//---------------------------------------------------------------------------------------------------------------
-    private void dialogoUbicacion() {
-        DialogUbicacion d = new DialogUbicacion(); //Instanciamos la clase con el dialogo
-        d.setCancelable(false);//Hacemos que no se pueda saltar el dialogo (opcional)
-        d.show(getFragmentManager(), "NEWPOSITION");// Mostramos el dialogo
+
+            final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+            builder.setView(content);
+            builder.setPositiveButton("guardar", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int id) {
+                    ubicacion.setTitulo(nombre.getText().toString());
+                    ubicacion.setDescripcion(descripcion.getText().toString());
+                    if(Validacion()){
+                        Guardar(ubicacion);
+                        dialog.dismiss();
+                    }
+                    else {
+                        Toast.makeText(MainActivity.this, "Lo siento, campos obligatorios", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            });
+            builder.setNegativeButton("cancelar", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int id) {
+                    dialog.dismiss();
+                }
+            });
+            return builder.create();
+        }
+
+        @Override
+        public void onClick(View v) {
+            switch (v.getId()) {
+                case R.id.btCamera: {
+                        SacarFoto();
+                }
+                default:
+                    break;
+            }
+        }
+
+
+        public void SacarFoto() {
+            Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+            startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
+        }
+
+        @Override
+        public void onActivityResult(int requestCode, int resultCode, Intent data) {
+            if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
+                Bundle extras = data.getExtras();
+                Bitmap imageBitmap = (Bitmap) extras.get("data");
+
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                imageBitmap.compress(Bitmap.CompressFormat.PNG, 100, baos);
+                ubicacion.setImagen(baos.toByteArray());
+
+                foto.setVisibility(View.VISIBLE);
+                foto.setImageBitmap(imageBitmap);
+            }
+        }
+        public boolean Validacion(){
+            Boolean res=false;
+
+            if (nombre.getText().toString().isEmpty() && descripcion.getText().toString().isEmpty()) {
+                nombre.setBackgroundResource(R.drawable.border_validation);
+                descripcion.setBackgroundResource(R.drawable.border_validation);
+            }
+            else if (nombre.getText().toString().isEmpty()) {
+                nombre.setBackgroundResource(R.drawable.border_validation);
+            }
+            else if (descripcion.getText().toString().isEmpty()) {
+                descripcion.setBackgroundResource(R.drawable.border_validation);
+            }
+            else {
+                nombre.setBackgroundResource(R.drawable.border_validation_ok);
+                descripcion.setBackgroundResource(R.drawable.border_validation_ok);
+                res = true;
+            }
+            return res;
+        }
+
+
     }
 }
 

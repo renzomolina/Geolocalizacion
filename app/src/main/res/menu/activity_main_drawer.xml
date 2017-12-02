@@ -6,9 +6,9 @@
     <item android:title="Menu">
         <menu>
             <item
-                android:id="@+id/nav_camera"
-                android:icon="@drawable/ic_menu_camera"
-                android:title="Camara" />
+                android:id="@+id/nav_lugares"
+                android:icon="@drawable/points_mark_maps"
+                android:title="Tus Lugares" />
             <item
                 android:id="@+id/nav_gallery"
                 android:icon="@drawable/ic_menu_gallery"

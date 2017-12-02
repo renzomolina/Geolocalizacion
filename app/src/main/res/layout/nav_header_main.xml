@@ -17,7 +17,7 @@
         android:layout_width="95dp"
         android:layout_height="81dp"
         android:visibility="visible"
-        app:srcCompat="@drawable/maps_icon" />
+        app:srcCompat="@drawable/icon_app" />
 
     <TextView
         android:layout_width="match_parent"
