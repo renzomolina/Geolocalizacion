@@ -28,7 +28,6 @@ public class BaseApplication extends Application{
     public boolean InsertarUbicacion(Ubicacion ubicacion) {
         return dbAdapter.UbicacionesInsert(ubicacion);
     }
-
     public ArrayList<String> titulosUbicaciones(){
         ArrayList<String> list = new ArrayList<>();
         Cursor cursor = dbAdapter.getDatosUbicacion();
@@ -42,7 +41,20 @@ public class BaseApplication extends Application{
     public Cursor DatosUbicacion(){
         return dbAdapter.getDatosUbicacion();
     }
-    public Cursor DatosPosiciones(){
+    public Cursor Posiciones(){
         return dbAdapter.getPosiciones();
     }
+    public Cursor getUbicacion(String lat,String lng){
+        return dbAdapter.getUbicacion(lat,lng);
+    }
+
+
+    public boolean InsertarImagenes(String idLocation,byte[] imagen){
+        return dbAdapter.ImagenesInsert(idLocation,imagen);
+    }
+    public Cursor DatosImagenes() {
+        return dbAdapter.getDatosImagenes();
+    }
+    public Cursor IdUltimaUbicacion(){return dbAdapter.getIdUltimaUbicacion();}
+    public Cursor getLugares(){return dbAdapter.getLugares();}
 }

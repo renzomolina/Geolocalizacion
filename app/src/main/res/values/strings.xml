@@ -2,5 +2,15 @@
     <string name="app_name">My Points</string>
     <string name="navigation_drawer_open">Abrir navigation drawer</string>
     <string name="navigation_drawer_close">Cerrar navigation drawer</string>
+    <string name="guardar_esta_ubicacion">GUARDAR ESTA UBICACION</string>
+    <string name="ubicacion_nombre">UBICACION_NOMBRE</string>
+    <string name="descripcion_nombre">DESCRIPCION_NOMBRE</string>
+    <string name="camara">Camara</string>
+    <string name="galeria">Galeria</string>
+    <string name="foto">Foto</string>
+    <string name="descripcion">Descripcion</string>
+    <string name="nombre">Nombre</string>
+    <string name="photo">photo</string>
+
 
 </resources>

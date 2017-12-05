@@ -1,11 +1,12 @@
 package com.geolocalizacionsoft.geolocalizacion.MisClases;
 
+import com.google.android.gms.maps.model.Circle;
+
 public class Ubicacion {
     private String titulo;
     private String descripcion;
     private String latitud;
     private String longitud;
-    private byte[] imagen;
 
     public String getTitulo() {
         return titulo;
@@ -19,9 +20,6 @@ public class Ubicacion {
     public String getLongitud() {
         return longitud;
     }
-    public byte[] getImagen() {
-        return imagen;
-    }
 
     public void setTitulo(String titulo) {
         this.titulo = titulo;
@@ -34,8 +32,5 @@ public class Ubicacion {
     }
     public void setLongitud(String longitud) {
         this.longitud = longitud;
-    }
-    public void setImagen(byte[] imagen) {
-        this.imagen = imagen;
     }
 }

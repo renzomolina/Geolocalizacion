@@ -29,7 +29,7 @@ public class SplashScreenActivity extends Activity {
                 SplashScreenActivity.this.startActivity(new Intent(SplashScreenActivity.this,MainActivity.class));
                 SplashScreenActivity.this.finish();
             }
-        },2000);
+        },1500);
 
         crearAccesoDirectoEnEscritorio("My Points");
     }
@@ -52,16 +52,4 @@ public class SplashScreenActivity extends Activity {
         i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         return i;
     }
-    public void eliminarAccesoDirecto() {
-        Intent shortcut = new Intent("com.android.launcher.action.UNINSTALL_SHORTCUT");
-
-        shortcut.putExtra(Intent.EXTRA_SHORTCUT_NAME, getString(R.string.app_name));
-
-        String appClass = this.getPackageName() + "." + this.getLocalClassName();
-        ComponentName comp = new ComponentName(this.getPackageName(), appClass);
-        shortcut.putExtra(Intent.EXTRA_SHORTCUT_INTENT, new Intent(Intent.ACTION_MAIN).setComponent(comp));
-
-        sendBroadcast(shortcut);
-    }
-
 }

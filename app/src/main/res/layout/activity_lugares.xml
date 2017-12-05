@@ -6,5 +6,24 @@ xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="com.geolocalizacionsoft.geolocalizacion.MisClases.Lugares">
+    <TextView
+        android:id="@+id/tvMisLugares"
+        android:textColor="#f9171b2e"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:gravity="center"
+        android:paddingBottom="@dimen/padding_between"
+        android:paddingTop="@dimen/padding_between"
+        android:text="MIS LUGARES"
+        android:textAppearance="?android:attr/textAppearanceSmall" />
 
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/recyclerMisLugares"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignParentStart="true"
+        android:layout_below="@+id/tvMisLugares"
+        android:layout_marginTop="24dp"></android.support.v7.widget.RecyclerView>
 </RelativeLayout>

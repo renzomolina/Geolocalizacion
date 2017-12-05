@@ -39,6 +39,8 @@ public class DBAdapter {
         return ubicaciones.Insert(ubicacion);
     }
 
+    public boolean ImagenesInsert(String idLocation,byte[] imagen){return  ubicaciones.InsertIMG(idLocation,imagen  );}
+
     public boolean Delete(int id){
         return ubicaciones.Delete(id);
     }
@@ -51,6 +53,17 @@ public class DBAdapter {
         return ubicaciones.getPosiciones();
     }
 
+    public Cursor getDatosImagenes(){
+        return ubicaciones.getDatosImagenes();}
+
+    public Cursor getIdUltimaUbicacion(){return ubicaciones.getIdUltimaUbicacion();}
+
+    public Cursor getUbicacion(String lat,String lng){
+        return ubicaciones.getUbicacion(lat,lng);
+    }
+
+    public Cursor getLugares(){return ubicaciones.getLugares();}
+
     private class DBHelper extends SQLiteOpenHelper{
 
         public DBHelper(Context context) {
@@ -60,11 +73,14 @@ public class DBAdapter {
         @Override
         public void onCreate(SQLiteDatabase sqLiteDatabase) {
             sqLiteDatabase.execSQL(SQLiteUbicaciones.TABLE);
+            sqLiteDatabase.execSQL(SQLiteUbicaciones.TABLE_IMG);
         }
 
         @Override
         public void onUpgrade(SQLiteDatabase sqLiteDatabase, int i, int i1) {
             sqLiteDatabase.execSQL(String.format("drop table if exists %s", SQLiteUbicaciones.TABLE));
+            sqLiteDatabase.execSQL(String.format("drop table if exists %s", SQLiteUbicaciones.TABLE_IMG));
+
         }
     }
 }

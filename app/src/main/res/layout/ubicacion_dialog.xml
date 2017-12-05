@@ -6,6 +6,7 @@
     android:background="#f7d2f4ef"
     android:padding="@dimen/dialog_body">
 
+
     <TextView
         android:id="@+id/save_position"
         android:textColor="#f9171b2e"
@@ -16,7 +17,7 @@
         android:gravity="center"
         android:paddingBottom="@dimen/padding_between"
         android:paddingTop="@dimen/padding_between"
-        android:text="GUARDAR ESTA UBICACION"
+        android:text="@string/guardar_esta_ubicacion"
         android:textAppearance="?android:attr/textAppearanceSmall" />
 
     <View
@@ -28,48 +29,77 @@
         android:layout_marginTop="@dimen/padding_between"
         android:background="#C8C9CB" />
 
-    <EditText
-        android:id="@+id/input_nombre"
+    <LinearLayout
+        android:id="@+id/ContenedorEditText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/divider"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="@dimen/normal_padding"
-        android:background="@drawable/border"
-        android:ems="10"
-        android:hint="UBICACION_NOMBRE"
-        android:inputType="textPersonName"
-        android:padding="@dimen/edit_text_padding"
-        android:textAppearance="?android:attr/textAppearanceSmall" />
+        android:orientation="vertical">
 
-    <EditText
-        android:id="@+id/input_descripcion"
+        <EditText
+            android:id="@+id/input_nombre"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/normal_padding"
+            android:background="@drawable/border"
+            android:ems="10"
+            android:hint="@string/ubicacion_nombre"
+            android:inputType="textPersonName"
+            android:padding="@dimen/edit_text_padding"
+            android:textAppearance="?android:attr/textAppearanceSmall" />
+
+        <EditText
+            android:id="@+id/input_descripcion"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/padding_between"
+            android:layout_marginTop="@dimen/normal_padding"
+            android:background="@drawable/border"
+            android:ems="10"
+            android:hint="@string/descripcion_nombre"
+            android:inputType="textMultiLine"
+            android:padding="@dimen/edit_text_padding"
+            android:textAppearance="?android:attr/textAppearanceSmall" />
+    </LinearLayout>
+
+    <View
+        android:id="@+id/divider2"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/input_nombre"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="@dimen/padding_between"
-        android:layout_marginTop="@dimen/normal_padding"
-        android:background="@drawable/border"
-        android:ems="10"
-        android:hint="DESCRIPCION_NOMBRE"
-        android:inputType="textMultiLine"
-        android:padding="@dimen/edit_text_padding"
-        android:textAppearance="?android:attr/textAppearanceSmall" />
+        android:layout_height="1dp"
+        android:layout_alignParentStart="true"
+        android:layout_below="@+id/ContenedorEditText"
+        android:layout_marginTop="10dp"
+        android:layout_weight="5"
+        android:background="#C8C9CB" />
 
     <ImageButton
         android:id="@+id/btCamera"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/input_descripcion"
-        android:layout_centerHorizontal="true"
-        android:background="@drawable/camera50px" />
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_alignEnd="@+id/save_position"
+        android:layout_below="@+id/divider2"
+        android:background="@drawable/camera50px"
+        android:contentDescription="@string/camara" />
 
-    <ImageView
-        android:id="@+id/foto"
-        android:layout_width="match_parent"
-        android:layout_height="200dp"
+    <ImageButton
+        android:id="@+id/btnGaleria"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_alignStart="@+id/save_position"
+        android:layout_below="@+id/divider2"
+        android:background="@drawable/galeria"
+        android:contentDescription="@string/galeria" />
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/recyclerGaleria"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_alignBottom="@+id/ContenedorEditText"
+        android:layout_alignParentEnd="true"
         android:layout_alignParentStart="true"
-        android:layout_below="@+id/input_descripcion"
-        android:visibility="invisible" />
+        android:layout_below="@+id/divider"
+        android:visibility="invisible">
+
+    </android.support.v7.widget.RecyclerView>
+
 </RelativeLayout>
